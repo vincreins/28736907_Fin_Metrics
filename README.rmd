@@ -32,6 +32,25 @@ Texevier::create_template_html(directory = "Questions",
                           template_name = "Question2"
 )
 
+# PDF Texevier:
+Texevier::create_template(directory = "Questions",
+                          template_name = "Question3"
+)
+
+# HTML Texevier:
+Texevier::create_template_html(directory = "Questions",
+                          template_name = "Question4"
+)
+
+# PDF Texevier:
+Texevier::create_template(directory = "Questions",
+                          template_name = "Question5"
+)
+
+# HTML Texevier:
+Texevier::create_template_html(directory = "Questions",
+                          template_name = "Question6"
+)
 ```
 
 Now add the relevant data for each question into the respective data/ folders in the different Question folders.
