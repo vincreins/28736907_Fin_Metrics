@@ -4,9 +4,7 @@ output:
     variant: markdown_github
 ---
 
-# Description
 
-This folder was created by first creating a folder on your desktop - copying the adress and then simply running in any instance of R:
 
 
 ```{r, eval = F}
@@ -14,11 +12,6 @@ fmxdat::make_project()
 ```
 
 
-Next, download https://www.fmx.nfkatzke.com/FMX_data_2021.zip and unzip its contents into the data/ folder in this root.
-
-> NB: add data/ to your gitignore file when creating a repository. Ensure you do not commit the data folder please.
-
-Next, create sub-folders for each question by using, e.g.:
 
 ```{r}
 
