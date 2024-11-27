@@ -54,7 +54,7 @@ AI_Funds <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question
 ```
 
 
-I am tasked to showcase the performance of the AI Implementer fund, comparing it against the benchmark (Capped SWIX) and industry peers (ASISA active managers). Using insights inspired by Bill Sharpe's work, I will illustrate how actively managed funds often struggle to outperform their benchmarks and the AI fund after fees. Employing a rolling period approach, I will highlight key performance metrics, emphasizing the systematic advantages of the AI fund through graphical representations and data-driven insights.
+I am tasked to showcase the performance of the AI Implementer fund, comparing it against the benchmark (Capped SWIX) and industry peers (ASISA active managers). Using insights inspired by Bill Sharpe's work, I will illustrate how actively managed funds often struggle to outperform their benchmarks and the AI fund after fees. 
 
 I will start my analysis using the PerfomanceAnalytics package, to make use of this package, it is necessary to spread the data. 
 ```{r}
@@ -236,7 +236,7 @@ Capped_funds(
 
 Question 4
 
-I this question I will analyze the performance and positioning of SnakeOil Capital, a long-only domestic equity fund tracking the FTSE/JSE Capped SWIX. The analysis will cover relative risk (e.g., tracking error, active share, downside risk), relative performance (e.g., return comparisons, information ratio, rolling performance), fund positioning (e.g., stock and sector over/underweights), and performance attribution (e.g., drivers of relative and absolute performance, success of positioning decisions). The findings will be presented visually in a PowerPoint deck.
+In this question I will analyze the performance and positioning of SnakeOil Capital, a long-only domestic equity fund tracking the FTSE/JSE Capped SWIX. The analysis will cover relative risk, relative performance, and performance attribution. 
 
 ```{r}
 Port_Holds <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question4/data/Fund_Holds.rds")
@@ -311,7 +311,8 @@ sfm <- table.SFM(Ra = xts_port, Rb = xts_bench, 12)
 
 Question 5
 
-I this question I will analyze the South African rand (ZAR) relative to the USD, comparing its volatility and performance to other major currencies. The analysis will measure volatility across time and compare the ZAR with G10 currencies to confirm if it is among the most volatile. Additionally, I will evaluate the ZAR's performance during favorable G10 currency carry trade periods and assess its behavior during phases of Dollar strength, indicating risk-on sentiment. Insights will be presented using tables, graphs, and statistical comparisons to support the conclusions.
+I this question I will analyze the ZAR relative to the USD, comparing its volatility and performance to other major currencies. The analysis will measure volatility across time and compare the ZAR with G10 currencies to confirm if it is among the most volatile. Additionally, I will evaluate the ZAR's performance during favorable G10 currency carry trade periods and assess its behavior during phases of Dollar strength. 
+
 
 ```{r}
 cncy <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question5/data/currencies.rds")
@@ -322,7 +323,7 @@ bbdxy <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question5/d
 
 ```
 
-To prepare the data for further analysis, the currency data will be transformed to xts format. Since the data set contains everyday including weekends, where no trade data is available, the Weekends will be dropped from the data set. To enable an analyzes over a long period of time, and therefore many degrees of freedom,  all currencies which only had data available at a later point in time will be excluded from the analyzis. 
+To prepare the data for further analysis, the currency data will be transformed to xts format. Since the data set contains everyday including weekends, where no trade data is available, the Weekends will be dropped from the data set. To enable an analyzes over a long period of time, and therefore many degrees of freedom,  all currencies which only had data available at a later point in time will be excluded from the analysis. 
 
 ```{r}
 xts_cncy <- cncy %>% spread(Name, Price) %>% tbl_xts()
@@ -337,7 +338,7 @@ To get a first idea, which currencies are especially volatile, the currency_vola
 currency_volatility(xts_cncy)
 ```
 
-To also get an Idea, whether this aligns with the implied volatility by the markets, the same function will be applied to the cncyIV dataset.
+To also get an idea, whether this aligns with the implied volatility by the markets, the same function will be applied to the cncyIV dataset.
 
 ```{r}
 xts_IV <- cncyIV %>% spread(Name, Price) %>% tbl_xts() %>% .["1999-03-01/"] 
@@ -373,7 +374,7 @@ These plots are arranged into a grid with two columns using grid.arrange, provid
 plots(data)
 ```
 
-The plot_rolling_correlations provide a visual insight into the correlation results, and furthermore ensures, that the result is not driven by a few outliers. The plot_rolling_correlations function calculates and visualizes the rolling correlations between the ZAR exchange rate and three predictors: the Carry Index, Dollar Index, and implied volatility. It uses a specified rolling window (default: 252 days) to compute correlations over time.
+The plot_rolling_correlations provide a visual insight into the correlation results, and furthermore ensures, that the result is not driven by a few outliers. The plot_rolling_correlations function calculates and visualizes the rolling correlations between the ZAR exchange rate and three predictors: the Carry Index, Dollar Index, and implied volatility. It uses a specified rolling window to compute correlations over time.
 
 The function first calculates rolling correlations for each predictor using rollapply, aligning results to the right and filling gaps with NA values. It then generates a line plot with separate lines for each predictor, showing how their correlations with the ZAR exchange rate evolve over time. The output is a list containing the augmented dataset with calculated correlations and the correlation plot.
 
@@ -383,7 +384,7 @@ plot_rolling_correlations(data, 252)
 
 Question 6
 
-In this question, I will construct a Global Balanced Index Fund portfolio using traded global indexes. The analysis will incorporate a long-only strategy with monthly data post-2010, focusing on risk and return optimization using a covariance matrix and mean forecasts based on a look-back period of less than three years. The portfolio will adhere to constraints on asset exposure, including limits of 60% for equities, 25% for bonds and credit instruments, and 40% for single assets, with quarterly rebalancing applied. The goal is to design a balanced, diversified portfolio while exploring various analytical perspectives and methodologies.
+In this question, I will construct a Global Balanced Index Fund portfolio using traded global indexes. The analysis will incorporate a long-only strategy with monthly data post-2010, focusing on risk and return optimization using a covariance matrix and mean forecasts based on a look-back period of less than three years. The portfolio will adhere to constraints on asset exposure, including limits of 60% for equities, 25% for bonds and credit instruments, and 40% for single assets, with quarterly rebalancing applied. 
 
 ```{r}
 MAA <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question6/data/MAA.rds")
