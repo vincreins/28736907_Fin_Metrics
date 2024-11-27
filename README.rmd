@@ -54,7 +54,7 @@ AI_Funds <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question
 ```
 
 
-I am tasked to showcase the performance of the AI Implementer fund, comparing it against the benchmark (Capped SWIX) and industry peers (ASISA active managers). Using insights inspired by Bill Sharpe's work, I will illustrate how actively managed funds often struggle to outperform their benchmarks and the AI fund after fees. 
+I am tasked to showcase the performance of the AI Implementer fund, comparing it against the benchmark (Capped SWIX) and industry peers (ASISA active managers). 
 
 I will start my analysis using the PerfomanceAnalytics package, to make use of this package, it is necessary to spread the data. 
 ```{r}
