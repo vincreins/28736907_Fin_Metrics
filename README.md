@@ -4,9 +4,7 @@ output:
     variant: markdown_github
 ---
 
-# Description
 
-This folder was created by first creating a folder on your desktop - copying the adress and then simply running in any instance of R:
 
 
 ```{r, eval = F}
@@ -14,11 +12,6 @@ fmxdat::make_project()
 ```
 
 
-Next, download https://www.fmx.nfkatzke.com/FMX_data_2021.zip and unzip its contents into the data/ folder in this root.
-
-> NB: add data/ to your gitignore file when creating a repository. Ensure you do not commit the data folder please.
-
-Next, create sub-folders for each question by using, e.g.:
 
 ```{r}
 
@@ -54,6 +47,13 @@ Texevier::create_template_html(directory = "Questions",
 ```
 Question 1
 
+```{r}
+ASISA <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question1/data/ASISA_Rets.rds")
+BM <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question1/data/Capped_SWIX.rds")
+AI_Funds <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question1/data/AI_Max_Fund.rds")
+```
+
+
 I am tasked to showcase the performance of the AI Implementer fund, comparing it against the benchmark (Capped SWIX) and industry peers (ASISA active managers). Using insights inspired by Bill Sharpe's work, I will illustrate how actively managed funds often struggle to outperform their benchmarks and the AI fund after fees. Employing a rolling period approach, I will highlight key performance metrics, emphasizing the systematic advantages of the AI fund through graphical representations and data-driven insights.
 
 I will start my analysis using the PerfomanceAnalytics package, to make use of this package, it is necessary to spread the data. 
@@ -75,6 +75,12 @@ merged <- merge.xts(AI_xts, ASISA_mean, BM_xts) %>% na.omit()
 colnames(merged) <- c("AI_Fund", "Managed_Funds", "Benchmark")
 
 chart.CumReturns(merged, legend.loc = 1)
+```
+
+After calculating cumulative returns to assess overall performance, rolling returns are analyzed to evaluate consistency and resilience over different time periods, addressing potential biases from early outcomes or isolated events. 
+
+```{r}
+chart.RollingPerformance(merged, 12, legend.loc = 3)
 ```
 
 The density_plot function creates a density plot to visualize and compare the distribution of rolling returns for multiple funds or data series, including the AI Implementer fund, the benchmark (Capped SWIX), and industry peers (ASISA active managers). It calculates rolling averages over a specified window size (window_size, default is 36) to smooth the data and better reflect trends over time. 
@@ -241,6 +247,67 @@ Capped_SWIX <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Quest
 ALSI <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question4/data/ALSI.rds")
 
 ```
+
+To prepare the data for later analysis, the benchmark and the Snakeoil portfolio are capped to the same start and end date and transformed to xts format. 
+
+```{r}
+Swix <- BM_Rets %>% filter(date >= ymd(20191031))
+Endate <- ymd(20241031)
+
+Ra <- Swix %>%
+    filter(date <= Endate) %>%
+    filter(date >= fmxdat::safe_month_min(last(date), N = 36)) %>%
+    tbl2xts::tbl_xts(cols_to_xts = BM)
+
+Rs <- Port_Rets %>%
+    filter(date <= Endate) %>%
+    filter(date >= fmxdat::safe_month_min(last(date), N = 36)) %>%
+    tbl2xts::tbl_xts(cols_to_xts = Returns)
+
+pacman::p_load(tbl2xts, PerformanceAnalytics)
+
+xts_port <- tbl_xts(Port_Rets)
+xts_bench <- tbl_xts(BM_Rets)
+```
+
+The data then allows to calculate quantitative information on the fund. As a first step the tracking error is calculated which measures the standard deviation of the difference between a portfolio's returns and its benchmark's returns, indicating the consistency of the portfolio's performance relative to the benchmark.
+
+```{r}
+TE <- fmxdat::Safe_TE(Ra, Rs, scale = 12)
+```
+
+As a next step the cumulative returns of the Benchmark and the Snakeoil Fund will be plotted to give a first impression which one performs better and by how much.
+
+```{r}
+merged <- merge.xts(xts_port, xts_bench)
+chart.CumReturns(merged, legend.loc = 1)
+```
+
+Then, the 12-month rolling beta is calculated to provide a dynamic view of the fund's sensitivity to the benchmark over time. This metric helps assess how the fund's positioning aligns with or deviates from the benchmark under different market conditions, offering insights into changes in risk exposure and informing discussions on relative performance and strategy effectiveness.
+
+```{r}
+chart.RollingRegression(Ra = xts_port, Rb = xts_bench, width = 12,
+    attribute = c("Beta"))
+```
+
+To compare the cumulative returns of the fund against its benchmark, the chart.RelativePerformance function is used to visually provide a clear perspective on the fund's relative performance over time and highlighting periods of outperformance or underperformance.
+
+```{r}
+chart.RelativePerformance(xts_port, xts_bench)
+```
+
+To measure the fund's risk-adjusted performance relative to its benchmark, the Information Ratio is calculated, helping to evaluate the consistency and efficiency of the fund manager's active investment decisions.
+
+```{r}
+IR <- ratio.information(xts_port, xts_bench)
+```
+
+Inorder to provide insights into alpha, beta, R-squared, and other metrics that quantify the fund's relative performance and risk characteristics over time, the SFM table is computed.
+
+```{r}
+sfm <- table.SFM(Ra = xts_port, Rb = xts_bench, 12)
+```
+
 
 Question 5
 
