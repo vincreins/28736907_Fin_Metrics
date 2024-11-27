@@ -36,21 +36,9 @@ pacman::p_load(modelsummary, gt, knitr, kableExtra, tidyverse)
 
 # Introduction {-}
 
-This template has been adapted from pagedown::html_paged and is intended to help you simply create HTML that has a readable (pdf) feel to it.
 
-References are to be made as follows: [@fama1997] and @grinold2000 Such authors could also be referenced in brackets [@grinold2000] and together [@fama1997 \& @grinold2000]. Source the reference code from scholar.google.com by clicking on ``cite'' below article name. Then select BibTeX at the bottom of the Cite window, and proceed to copy and paste this code into your ref.bib file, located in the directory's Tex folder. Open this file in Rstudio for ease of management, else open it in your preferred Tex environment. Add and manage your article details here for simplicity - once saved, it will self-adjust in your paper.
 
 > I suggest renaming the top line after \@article, as done in the template ref.bib file, to something more intuitive for you to remember. Do not change the rest of the code. Also, be mindful of the fact that bib references from google scholar may at times be incorrect. Reference Latex forums for correct bibtex notation.
-
-Writing in Rmarkdown is surprizingly easy - see [this website](https://www.rstudio.com/wp-content/uploads/2015/03/rmarkdown-reference.pdf) cheatsheet for a summary on writing Rmd writing tips.
-
-# Data  {-}
-
-Notice how I used the curly brackets and dash to remove the numbering of the data section.
-
-Discussion of data should be thorough with a table of statistics and ideally a figure.
-
-In your tempalte folder, you will find a Data and a Code folder. In order to keep your data files neat, store all of them in your Data folder. Also, I strongly suggest keeping this Rmd file for writing and executing commands, not writing out long pieces of data-wrangling. In the example below, I simply create a ggplot template for scatter plot consistency. I suggest keeping all your data in a data folder.
 
 <!-- The following is a code chunk. It must have its own unique name (after the r), or no name. After the comma follows commands for R which are self-explanatory. By default, the code and messages will not be printed in your pdf, just the output: -->
 
@@ -67,6 +55,9 @@ Capped_SWIX <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Quest
 ALSI <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question4/data/ALSI.rds")
 
 ```
+
+Relative Risk
+Tracking Error
 
 ```{r}
 library(tidyverse)
@@ -88,30 +79,33 @@ Rs <- Port_Rets %>%
     filter(date >= fmxdat::safe_month_min(last(date), N = 36)) %>%
     tbl2xts::tbl_xts(cols_to_xts = Returns)
 
-PerformanceAnalytics::TrackingError(Ra, Rs, scale = 12)
-
-fmxdat::Safe_TE(Ra, Rs, scale = 12)
-```
-
-
-```{r}
 pacman::p_load(tbl2xts, PerformanceAnalytics)
 
 xts_port <- tbl_xts(Port_Rets)
 xts_bench <- tbl_xts(BM_Rets)
 
-chart.Histogram(xts_port, methods = "add.normal", 
-                main = "Sanlam Histogram")
 
-chart.Histogram(xts_port, 
-  methods = c("add.density", "add.normal", "add.risk"),
-  main = "Adding Value at Risk (95%)")
+
+
+
+TE <- fmxdat::Safe_TE(Ra, Rs, scale = 12)
+```
+
+```{r}
+chart.RollingPerformance(merged, 12, legend.loc = 1)
+```
+
+
+```{r}
 
 ```
+
+
 ```{r}
 chart.Drawdown(xts_port,main = "Drawdowns: Sanlam", 
                col = "steelblue")
 ```
+
 ```{r}
 chart.CumReturns(xts_port,main = "Drawdowns: Sanlam", 
                col = "steelblue")
@@ -123,35 +117,43 @@ chart.RollingRegression(Ra = xts_port, Rb = xts_bench, width = 12,
 ```
 
 ```{r}
-table.SFM(Ra = xts_port, Rb = xts_bench)
+sfm <- table.SFM(Ra = xts_port, Rb = xts_bench, 12)
 ```
 
+```{r}
+
+merged <- merge.xts(xts_port, xts_bench)
+chart.CumReturns(merged, legend.loc = 1)
+```
+
+Relative performane
 ```{r}
 chart.RelativePerformance(xts_port, xts_bench)
 ```
+Information ratio
+```{r}
+library(rportfolio)
 
+IR <- ratio.information(xts_port, xts_bench)
+```
 
-
+Sector weights
 
 ```{r}
-merged_data <- merge(Port_Holds, BM_Holds, by = c("Tickers", "date"), all = FALSE)
 
-merged_data %>% group_by(Sector, date) 
+plot_sector_weights(Port_Holds, BM_Holds)
+```
 
-sector_weights <- merged_data %>%
-  group_by(date, Sector) %>%
-  summarise(total_weight = sum(Weight, na.rm = TRUE)) %>%
-  ungroup()
+Stock concentration
 
-ggplot(sector_weights, aes(x = date, y = total_weight, fill = Sector)) +
-  geom_bar(stat = "identity", position = "stack") +
-  labs(title = "Total Weight per Sector by Date",
-       x = "Date",
-       y = "Total Weight") +
-  theme_minimal() +
-  scale_fill_brewer(palette = "Set3") # Optional: adjust the color palette
+```{r}
+
+
+plot_stock_concentration(merged_data, ALSI)
 
 ```
+
+
 
 ```{r}
 ALSI_bench <- select(ALSI, c("date", "J203", "Sector"))
