@@ -1,4 +1,5 @@
 density_plot <- function(data, window_size = 36) {
+    library(RcppRoll)
     year_roll <- roll_mean(data, window_size)
     df_roll <- data.frame(date = index(year_roll), coredata(year_roll)) %>%
         gather(Funds, Returns, -date)

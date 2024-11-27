@@ -71,5 +71,5 @@ Capped_funds <- function(ALSI, RebDays, J203_cols, W_Cap_values) {
     ) +
     fmxdat::theme_fmx()
 
-  list(Results = results, Plot = plot)
+  return(plot)
 }

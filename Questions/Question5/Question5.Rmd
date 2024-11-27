@@ -1,98 +1,36 @@
 ---
-# IMPORTANT: Change settings here, but DO NOT change the spacing.
-# Remove comments and add values where applicable.
-# The descriptions below should be self-explanatory
-
-title: "Helping You Write Academic Papers in R using Texevier"
-#subtitle: "This will appear as Right Header"
-
-documentclass: "elsarticle"
-
-# --------- Thesis title (Optional - set to FALSE by default).
-# You can move the details below around as you please.
-Thesis_FP: FALSE
-# Entry1: "An unbelievable study with a title spanning multiple lines."
-# Entry2: "\\textbf{Some Guy}" # textbf for bold
-# Entry3: "A thesis submitted toward the degree of Doctor of Philosophy"
-# Uni_Logo: Tex/Logo.png # Place a logo in the indicated location (from your root, e.g. defaults to ~/Tex/Logo.png) and uncomment this line. Leave uncommented for no image
-# Logo_width: 0.3 # If using a logo - use this to set width (size) of image
-# Entry4: "Under the supervision of: \\vfill Prof. Joe Smith and Dr. Frank Smith"
-# Entry5: "Stellenbosch University"
-# Entry6: April 2020
-# Entry7:
-# Entry8:
-
-# --------- Front Page
-# Comment: ----- Follow this pattern for up to 5 authors
-AddTitle: TRUE # Use FALSE when submitting to peer reviewed platform. This will remove author names.
-Author1: "Jane Doe^[__Contributions:__  \\newline _The authors would like to thank no institution for money donated to this project. Thank you sincerely._]"  # First Author - note the thanks message displayed as an italic footnote of first page.
-Ref1: "Some Institution, Cape Town, South Africa" # First Author's Affiliation
-Email1: "nfkatzke\\@gmail.com" # First Author's Email address
-
-Author2: "John Smith"
-Ref2: "Some other Institution, Cape Town, South Africa"
-Email2: "John\\@gmail.com"
-CommonAffiliation_12: TRUE # If Author 1 and 2 have a common affiliation. Works with _13, _23, etc.
-
-Author3: "John Doe"
-Email3: "Joe\\@gmail.com"
-
-CorrespAuthor_1: TRUE  # If corresponding author is author 3, e.g., use CorrespAuthor_3: TRUE
-
-# Comment out below to remove both. JEL Codes only given if keywords also given.
-keywords: "Multivariate GARCH \\sep Kalman Filter \\sep Copula" # Use \\sep to separate
-JELCodes: "L250 \\sep L100"
-
-# ----- Manage headers and footers:
-#BottomLFooter: $Title$
-#BottomCFooter:
-#TopLHeader: \leftmark # Adds section name at topleft. Remove comment to add it.
-BottomRFooter: "\\footnotesize Page \\thepage" # Add a '#' before this line to remove footer.
-addtoprule: TRUE
-addfootrule: TRUE               # Use if footers added. Add '#' to remove line.
-
-# --------- page margins:
-margin: 2.3 # Sides
-bottom: 2 # bottom
-top: 2.5 # Top
-HardSet_layout: TRUE # Hard-set the spacing of words in your document. This will stop LaTeX squashing text to fit on pages, e.g.
-# This is done by hard-setting the spacing dimensions. Set to FALSE if you want LaTeX to optimize this for your paper.
-
-# --------- Line numbers
-linenumbers: FALSE # Used when submitting to journal
-
-# ---------- References settings:
-# You can download cls format here: https://www.zotero.org/ - simply search for your institution. You can also edit and save cls formats here: https://editor.citationstyles.org/about/
-# Hit download, store it in Tex/ folder, and change reference below - easy.
-bibliography: Tex/ref.bib       # Do not edit: Keep this naming convention and location.
-csl: Tex/harvard-stellenbosch-university.csl # referencing format used.
-# By default, the bibliography only displays the cited references. If you want to change this, you can comment out one of the following:
-#nocite: '@*' # Add all items in bibliography, whether cited or not
-# nocite: |  # add specific references that aren't cited
-#  @grinold2000
-#  @Someoneelse2010
-
-# ---------- General:
-RemovePreprintSubmittedTo: TRUE  # Removes the 'preprint submitted to...' at bottom of titlepage
-Journal: "Journal of Finance"   # Journal that the paper will be submitting to, if RemovePreprintSubmittedTo is set to TRUE.
-toc: FALSE                       # Add a table of contents
-numbersections: TRUE             # Should sections (and thus figures and tables) be numbered?
-fontsize: 11pt                  # Set fontsize
-linestretch: 1.2                # Set distance between lines.
-link-citations: TRUE            # This creates dynamic links to the papers in reference list.
-
-### Adding additional latex packages:
-# header-includes:
-#    - \usepackage{colortbl} # Add additional packages here.
-
+title: "Question 5 Volatility and GARCH estimates"
+documentclass: elsarticle
+Thesis_FP: false
 output:
+  html_document:
+    df_print: paged
   pdf_document:
-    keep_tex: TRUE
+    keep_tex: true
     template: Tex/TexDefault.txt
-    fig_width: 3.5 # Adjust default figure sizes. This can also be done in the chunks of the text.
+    fig_width: 3.5
     fig_height: 3.5
-abstract: |
-  Abstract to be written here. The abstract should not be too long and should provide the reader with a good understanding what you are writing about. Academic papers are not like novels where you keep the reader in suspense. To be effective in getting others to read your paper, be as open and concise about your findings here as possible. Ideally, upon reading your abstract, the reader should feel he / she must read your paper in entirety.
+Author1: Vincent Reinshagen
+Ref1: Stellenbosch University
+Email1: 28736907@sun.ac.za
+BottomRFooter: \footnotesize Page \thepage
+addtoprule: true
+addfootrule: true
+margin: 2.3
+bottom: 2
+top: 2.5
+HardSet_layout: true
+linenumbers: false
+bibliography: Tex/ref.bib
+csl: "Tex/harvard-stellenbosch-university.csl"
+RemovePreprintSubmittedTo: true
+Journal: Journal of Finance
+toc: false
+numbersections: true
+fontsize: 11pt
+linestretch: 1.2
+link-citations: true
+AddTitle: true
 ---
 
 <!-- First: Set your default preferences for chunk options: -->
@@ -108,6 +46,9 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.width 
 # Lets load in example data, and see how this can be stored and later called from your 'data' folder.
 if(!require("tidyverse")) install.packages("tidyverse")
 library(tidyverse)
+list.files('code/', full.names = T, recursive = T) %>% as.list() %>% walk(~source(.))
+library(tbl2xts)
+
 
 
 # Notice that as you are working in a .Rproj file (I am assuming you are) - the relative paths of your directories start at your specified root.
@@ -121,23 +62,7 @@ library(tidyverse)
 <!-- # Start Writing here: -->
 <!-- ############################## -->
 
-# Introduction \label{Introduction}
 
-References are to be made as follows: @fama1997[p. 33] and @grinold2000 Such authors could also be referenced in brackets [@grinold2000] and together [@fama1997 \& @grinold2000]. Source the reference code from scholar.google.com by clicking on ``cite'' below article name. Then select BibTeX at the bottom of the Cite window, and proceed to copy and paste this code into your ref.bib file, located in the directory's Tex folder. Open this file in Rstudio for ease of management, else open it in your preferred Tex environment. Add and manage your article details here for simplicity - once saved, it will self-adjust in your paper.
-
-> I suggest renaming the top line after \@article, as done in the template ref.bib file, to something more intuitive for you to remember. Do not change the rest of the code. Also, be mindful of the fact that bib references from google scholar may at times be incorrect. Reference Latex forums for correct bibtex notation.
-
-To reference a section, you have to set a label using ``\\label'' in R, and then reference it in-text as e.g. referencing a later section, Section \ref{Meth}.
-
-Writing in Rmarkdown is surprizingly easy - see [this website](https://www.rstudio.com/wp-content/uploads/2015/03/rmarkdown-reference.pdf) cheatsheet for a summary on writing Rmd writing tips.
-
-# Data  {-}
-
-Notice how I used the curly brackets and dash to remove the numbering of the data section.
-
-Discussion of data should be thorough with a table of statistics and ideally a figure.
-
-In your tempalte folder, you will find a Data and a Code folder. In order to keep your data files neat, store all of them in your Data folder. Also, I strongly suggest keeping this Rmd file for writing and executing commands, not writing out long pieces of data-wrangling. In the example below, I simply create a ggplot template for scatter plot consistency. I suggest keeping all your data in a data folder.
 
 <!-- The following is a code chunk. It must have its own unique name (after the r), or no name. After the comma follows commands for R which are self-explanatory. By default, the code and messages will not be printed in your pdf, just the output: -->
 
@@ -156,6 +81,8 @@ bbdxy <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question5/d
 
 ```
 
+The plot displays the 10 most volatile currencies over the observed period, with South Africa's currency (ZAR) consistently ranking among them. Notably, prior to 2002, the ZAR exhibited relatively lower volatility compared to its peers. However, post-2002, it emerges as one of the most volatile currencies in the dataset, frequently remaining near the top of the list in terms of volatility. The plot substantiates the initial statement regarding ZAR's behavior, particularly its performance in high-risk environments and its association with volatility.
+
 ```{r}
 xts_cncy <- cncy %>% spread(Name, Price) %>% tbl_xts()
 index(xts_cncy) <- as.Date(index(xts_cncy))
@@ -167,6 +94,9 @@ xts_cncy <- xts_cncy[, !apply(is.na(xts_cncy), 2, any)]
 currency_volatility(xts_cncy)
 ```
 
+
+The market implied volatility further corroborates the findings from the actual volatility analysis. While the ZAR is not consistently the currency with the highest implied volatility, there are distinct periods where its implied volatility significantly exceeds that of other currencies, sometimes by a substantial margin. This pattern highlights the ZAR's sensitivity to global market dynamics and its heightened vulnerability during periods of elevated risk or uncertainty.
+
 ```{r}
 xts_IV <- cncyIV %>% spread(Name, Price) %>% tbl_xts() %>% .["1999-03-01/"] 
 xts_IV <- xts_IV[, colSums(is.na(xts_IV)) == 0]
@@ -177,6 +107,11 @@ currency_volatility(xts_IV)
 
 ```
 
+
+The regression results provide insights into the statement, "The ZAR has generally performed well during periods where G10 currency carry trades have been favourable and currency valuations relatively cheap. Globally, it has been one of the currencies that most benefit during periods where the Dollar is comparatively strong, indicating a risk-on sentiment." However, the findings partially align with the statement and partially contradict it.
+The relationship between the ZAR and the G10 carry trade index (Carry_Index_norm) shows a negative coefficient (-0.086), indicating that ZAR tends to weaken when G10 carry trades are favorable. This contradicts the statement's claim that ZAR performs well during such periods. A possible explanation could be that favorable G10 carry trades attract capital toward higher-yielding G10 currencies, making them more competitive against emerging market currencies like the ZAR.
+The positive coefficient for the dollar index (Dollar_Index_norm) at 0.844 supports the second part of the statement, which claims that ZAR benefits during periods of dollar strength. This relationship suggests that ZAR appreciates when the dollar strengthens, aligning with risk-on sentiment where emerging markets like South Africa attract investor interest.
+Lastly, the negative coefficient for volatility (Volatility_norm) at -0.0346 aligns with the broader implication of the statement that ZAR performs poorly during periods of uncertainty or risk aversion. High volatility reflects greater market uncertainty, which tends to weaken ZAR.
 
 ```{r}
 ZAR <- xts_cncy %>% xts_tbl() %>% select(date, SouthAfrica_Cncy)
@@ -190,16 +125,15 @@ regression_summary(model)
 
 ```
 
+The plot of normalized variables reinforces the findings from the regression table, and to provide further clarity, the subsequent plot illustrates the rolling correlations.
+
 ```{r}
 plot_normalized(data)
 ```
 
+The rolling correlations in the chart highlight the dynamic relationships between the ZAR rate and the predictors over time, which adds nuance to the previous regression-based interpretation. The correlation between ZAR and the carry index (red line) fluctuates significantly, alternating between positive and negative values. This indicates that the relationship is not consistent and that ZAR does not always benefit during favorable carry trade periods, aligning with the earlier regression findings.
 
-
-```{r}
-plots(data)
-```
-
+In contrast, the dollar index (green line) generally shows a strong and sustained positive correlation with ZAR over time, reinforcing the conclusion that ZAR appreciates during periods of dollar strength, consistent with the statement about risk-on sentiment. The relationship between volatility (blue line) and ZAR is more volatile but tends to hover around a negative correlation, supporting the idea that increased market uncertainty (high volatility) weakens ZAR.
 
 ```{r}
 
@@ -207,21 +141,15 @@ plot_rolling_correlations(data, 252)
 ```
 
 
+The scatterplots provide additional context to the relationships between the ZAR exchange rate and the predictors. The negative slope in the relationship between ZAR and the carry index (DBHVG10U) indicates that ZAR weakens when G10 carry trade returns are favorable, which is consistent with the regression findings but contradicts the statement that ZAR benefits during such periods. This may reflect a preference for G10 currencies over emerging market currencies like ZAR during favorable carry trade conditions. Conversely, the positive slope between ZAR and the dollar index (BBDXY) reinforces the idea that ZAR appreciates during periods of dollar strength, aligning with the statement’s claim that ZAR benefits during risk-on sentiment when the dollar strengthens. The relationship between ZAR and implied volatility shows a slightly positive slope, which is unexpected given the usual risk-off impact of volatility on emerging market currencies. This weak relationship suggests that volatility might have less direct influence on ZAR or that other factors mitigate its impact. 
+
+```{r}
+plots(data)
+```
 
 
 
-\newpage
-
-# References {-}
-
-<div id="refs"></div>
 
 
-# Appendix {-}
 
-## Appendix A {-}
-
-Some appendix information here
-
-## Appendix B {-}
 

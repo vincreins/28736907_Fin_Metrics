@@ -30,27 +30,14 @@ abstract: |
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
 pacman::p_load(modelsummary, gt, knitr, kableExtra, tidyverse)
+if(!require("tidyverse")) install.packages("tidyverse")
+library(tidyverse)
+list.files('code/', full.names = T, recursive = T) %>% as.list() %>% walk(~source(.))
 ```
 
 \newpage
 
-# Introduction {-}
 
-This template has been adapted from pagedown::html_paged and is intended to help you simply create HTML that has a readable (pdf) feel to it.
-
-References are to be made as follows: [@fama1997] and @grinold2000 Such authors could also be referenced in brackets [@grinold2000] and together [@fama1997 \& @grinold2000]. Source the reference code from scholar.google.com by clicking on ``cite'' below article name. Then select BibTeX at the bottom of the Cite window, and proceed to copy and paste this code into your ref.bib file, located in the directory's Tex folder. Open this file in Rstudio for ease of management, else open it in your preferred Tex environment. Add and manage your article details here for simplicity - once saved, it will self-adjust in your paper.
-
-> I suggest renaming the top line after \@article, as done in the template ref.bib file, to something more intuitive for you to remember. Do not change the rest of the code. Also, be mindful of the fact that bib references from google scholar may at times be incorrect. Reference Latex forums for correct bibtex notation.
-
-Writing in Rmarkdown is surprizingly easy - see [this website](https://www.rstudio.com/wp-content/uploads/2015/03/rmarkdown-reference.pdf) cheatsheet for a summary on writing Rmd writing tips.
-
-# Data  {-}
-
-Notice how I used the curly brackets and dash to remove the numbering of the data section.
-
-Discussion of data should be thorough with a table of statistics and ideally a figure.
-
-In your tempalte folder, you will find a Data and a Code folder. In order to keep your data files neat, store all of them in your Data folder. Also, I strongly suggest keeping this Rmd file for writing and executing commands, not writing out long pieces of data-wrangling. In the example below, I simply create a ggplot template for scatter plot consistency. I suggest keeping all your data in a data folder.
 
 <!-- The following is a code chunk. It must have its own unique name (after the r), or no name. After the comma follows commands for R which are self-explanatory. By default, the code and messages will not be printed in your pdf, just the output: -->
 
@@ -62,9 +49,7 @@ ZAR <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question2/dat
 
 ```{r }
 
-library(ggplot2)
-library(gridExtra)
-library(cowplot)
+
 ZAR_YM <- ZAR %>% mutate(date = format(as.Date(date), "%Y-%m"))
 USD_ZAR_returns <- ZAR_YM %>% mutate(Return_cur = value/lag(value) - 1)
 
@@ -73,14 +58,17 @@ Return_hedged <- hedged_returns(Indexes)
 
 data_global <- Return %>% select(date, Global_Return, Return_cur) 
 
-create_plot(data_global)
-
 ```
 
+This plot recreates the plot from the study and clearly shows the negative correlation between the global allocation and the Rand
+```{r}
+create_plot(data_global)
+```
 
+The density plot shows that, while hedging increases average returns, it also introduces greater variability. This aligns with the notion that unhedged portfolios benefit from the rand's typical negative correlation with global returns, resulting in more consistent outcomes, whereas hedged portfolios might generate higher returns but at the cost of increased exposure to volatility.
 
 ```{r}
-library(RcppRoll)
+
 library(PerformanceAnalytics)
 library(tbl2xts)
 library(xts)
@@ -93,139 +81,22 @@ cur_ret <- USD_ZAR_returns %>%
     .["2002-02/"] 
 
 density_plot(merged)
+
+```
+The variance density plot displays the benefit of the negative correlation between the rand and offshore asset returns, which acts as a volatility dampener. In contrast, the hedged portfolio, shown in blue, exhibits a broader variance distribution with a higher mean variance marked by the blue dashed line. This suggests that hedging removes the natural volatility reduction provided by the rand’s movements, leading to increased overall portfolio variance. The data underscores that unhedged portfolios leverage the rand's volatility to reduce risk, while systematic hedging increases volatility, supporting the conclusion that currency hedging should be employed tactically for short-term adjustments rather than as a long-term strategy.
+
+```{r}
 density_plot_var(merged)
+```
+
+The rolling 12-month annualized return chart, combined with the annualized returns table, provides a comprehensive view of the impact of hedging on portfolio performance over time. The table shows that the Portfolio_Return_Hedged has a significantly higher annualized return (10.09%) compared to the Portfolio_Return (2.86%), highlighting the potential for higher returns when currency exposure is neutralized. However, the chart reveals the trade-off: the hedged portfolio exhibits far greater volatility, with large swings in performance, while the unhedged portfolio maintains a more stable and consistent trajectory.
+
+```{r}
 Return.annualized(merged, 12)
+```
+
+```{r}
 chart.RollingPerformance(merged, legend.loc = 3)
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-#  Methodology \label{Meth} {-}
-
-## Subsection {-}
-Ideally do not overuse subsections. It equates to bad writing.^[This is an example of a footnote by the way. Something that should also not be overused.]
-
-## Math section {-}
-
-Equations should be written as such:
-
-\begin{align}
-\beta = \sum_{i = 1}^{\infty}\frac{\alpha^2}{\sigma_{t-1}^2} \label{eq1} \\
-\int_{x = 1}^{\infty}x_{i} = 1 \notag
-\end{align}
-
-If you would like to see the equations as you type in Rmarkdown, use $ symbols instead (see this for yourself by adjusted the equation):
-
-$$
-\beta = \sum_{i = 1}^{\infty}\frac{\alpha^2}{\sigma_{t-1}^2} \\
-\int_{x = 1}^{\infty}x_{i} = 1
-$$
-
-Writing nice math requires practice. Note I used a forward slashes to make a space in the equations. I can also align equations using  __\&__, and set to numbering only the first line. Now I will have to type ``begin equation'' which is a native \LaTeX command. Here follows a more complicated equation:
-
-
-\begin{align}
-	y_t &= c + B(L) y_{t-1} + e_t   \label{eq2}    \\ \notag
-	e_t &= H_t^{1/2}  z_t ; \quad z_t \sim  N(0,I_N) \quad \& \quad H_t = D_tR_tD_t \\ \notag
-		D_t^2 &= {\sigma_{1,t}, \dots, \sigma_{N,t}}   \\ \notag
-		\sigma_{i,t}^2 &= \gamma_i+\kappa_{i,t}  v_{i, t-1}^2 +\eta_i  \sigma_{i, t-1}^2, \quad \forall i \\ \notag
-		R_{t, i, j} &= {diag(Q_{t, i, j}}^{-1}) . Q_{t, i, j} . diag(Q_{t, i, j}^{-1})  \\ \notag
-		Q_{t, i, j} &= (1-\alpha-\beta)  \bar{Q} + \alpha  z_t  z_t'  + \beta  Q_{t, i, j} \notag
-\end{align}
-
-Note that above we've aligned the equations by the equal signs. I also want only one tag, and I create spaces using ``quads''.
-
-See if you can figure out how to do complex math using the two examples provided.
-
-<!-- $$ -->
-<!-- This is a commented out section in the writing part. -->
-<!-- Comments are created by highlighting text, amnd pressing CTL+C -->
-<!-- \\begin{align} -->
-<!-- \\beta = \\alpha^2 -->
-<!-- \end{align} -->
-<!-- $$ -->
-
-## Results {-}
-
-Tables can be included as follows. Use the _xtable_ (or kable) package for tables. Table placement = H implies Latex tries to place the table Here, and not on a new page (there are, however, very many ways to skin this cat. Luckily there are many forums online!).
-
-```{r table-1, echo=TRUE, message=FALSE, warning=FALSE, results="asis"}
-library(knitr)
-library(kableExtra)
-
-data <- mtcars[1:5,] %>% tibble::as_tibble()
-
-table <- kable(data, row.names = TRUE,
-      caption = 'Table with kable() and kablestyling()',
-      format = "html", booktabs = T) %>%
-        kable_styling(full_width = T,
-                      latex_options = c("striped",
-                                        "scale_down",
-                                        "HOLD_position"),
-                      font_size = 13)
-table
-```
-
-To reference calculations __in text__, _do this:_ From table \@ref(tab:table-1) we see the average value of mpg is `r mean(mtcars[1:5,]$mpg)`. Notice the use of table-2 in the chunk name. That's the good stuff.
-
-\newpage
-
-
-# Model summary
-
-
-Check [this](https://vincentarelbundock.github.io/modelsummary/articles/modelsummary.html) link out for more. Note this package also plays nicely with gt, kableExtra, etc.
-
-```{r}
-
-library(modelsummary);library(gt)
-
-# modelsummary works well with gt:
-
-Tab <-
-
-datasummary_skim(swiss,
-type="numeric",
- histogram=T,
- title = "Summary: Numeric variables", output = "gt") %>%
-
-        # column labels
-    tab_spanner(label = 'Statistics', columns = c("Mean", "SD")) %>%
-    tab_spanner(label = 'Quantiles', columns = starts_with("P")) %>%
-    # footnote
-    tab_footnote(footnote = md("A very **important** Footnote."),
-                 locations = cells_body(rows = 3, columns = 1)) %>%
-
-    tab_options(data_row.padding = px(4),table.width = pct(60),
-            column_labels.font.size = pct(100),
-            column_labels.vlines.width = 1, table.font.size = pct(60))
-
-Tab
-```
-
-
-# References {-}
-
-<div id="refs"></div>
-
-
-# Appendix {-}
-
-## Appendix A {-}
-
-Some appendix information here
-
-## Appendix B {-}
-
-
-
+The additional plots show, that while currency hedging can lead to higher returns, it introduces significantly more volatility into the portfolio. The unhedged strategy benefits from the rand's negative correlation with global returns, providing a natural cushion against risk and leading to more stable outcomes. These findings support the view that currency hedging should be applied tactically, driven by short-term currency forecasts, rather than as a systematic, long-term approach.

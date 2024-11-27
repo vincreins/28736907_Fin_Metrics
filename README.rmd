@@ -54,6 +54,13 @@ Texevier::create_template_html(directory = "Questions",
 ```
 Question 1
 
+```{r}
+ASISA <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question1/data/ASISA_Rets.rds")
+BM <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question1/data/Capped_SWIX.rds")
+AI_Funds <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question1/data/AI_Max_Fund.rds")
+```
+
+
 I am tasked to showcase the performance of the AI Implementer fund, comparing it against the benchmark (Capped SWIX) and industry peers (ASISA active managers). Using insights inspired by Bill Sharpe's work, I will illustrate how actively managed funds often struggle to outperform their benchmarks and the AI fund after fees. Employing a rolling period approach, I will highlight key performance metrics, emphasizing the systematic advantages of the AI fund through graphical representations and data-driven insights.
 
 I will start my analysis using the PerfomanceAnalytics package, to make use of this package, it is necessary to spread the data. 
@@ -75,6 +82,12 @@ merged <- merge.xts(AI_xts, ASISA_mean, BM_xts) %>% na.omit()
 colnames(merged) <- c("AI_Fund", "Managed_Funds", "Benchmark")
 
 chart.CumReturns(merged, legend.loc = 1)
+```
+
+After calculating cumulative returns to assess overall performance, rolling returns are analyzed to evaluate consistency and resilience over different time periods, addressing potential biases from early outcomes or isolated events. 
+
+```{r}
+chart.RollingPerformance(merged, 12, legend.loc = 3)
 ```
 
 The density_plot function creates a density plot to visualize and compare the distribution of rolling returns for multiple funds or data series, including the AI Implementer fund, the benchmark (Capped SWIX), and industry peers (ASISA active managers). It calculates rolling averages over a specified window size (window_size, default is 36) to smooth the data and better reflect trends over time. 

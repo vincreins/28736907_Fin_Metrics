@@ -95,20 +95,8 @@ rts <- returns_data %>%
 wts[is.na(wts)] <- 0
 rts[is.na(rts)] <- 0
 
+plot_safe_returns(rts, wts)
 
-Idx <- rmsfuns::Safe_Return.portfolio(R = rts, weights = wts, lag_weights = TRUE) %>%
-  xts_tbl() %>%
-  rename(capped_Idx = portfolio.returns)
-
-
-Idx %>%
-  mutate(Idx = cumprod(1 + capped_Idx)) %>%
-  ggplot(aes(x = date, y = Idx)) +
-  geom_line(color = "steelblue") +
-  labs(title = "Cumulative Returns with Quarterly Rebalancing and Caps",
-       x = "Date",
-       y = "Cumulative Index") +
-  theme_minimal()
 ```
 
 
