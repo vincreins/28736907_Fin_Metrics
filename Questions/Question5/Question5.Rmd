@@ -1,5 +1,5 @@
 ---
-title: "Question 5 Volatility and GARCH estimates"
+title: "Question 5: Volatility and GARCH estimates"
 documentclass: elsarticle
 Thesis_FP: false
 output:

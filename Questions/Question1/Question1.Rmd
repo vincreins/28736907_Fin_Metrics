@@ -3,13 +3,13 @@ title: "Question 1: Systematic AI Fund"
 documentclass: elsarticle
 Thesis_FP: false
 output:
+  html_document:
+    df_print: paged
   pdf_document:
     keep_tex: true
     template: Tex/TexDefault.txt
     fig_width: 3.5
     fig_height: 3.5
-  html_document:
-    df_print: paged
 Author1: Vincent Reinshagen
 Ref1: Stellenbosch University
 Email1: 28736907@sun.ac.za

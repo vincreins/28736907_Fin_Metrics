@@ -1,7 +1,7 @@
 ---
 title: "Question 4: Portfolio Commentary"
-author: "NF Katzke"
-date: "November 2021"
+author: "Vincent Reinshagen"
+date: "November 2024"
 # date: "`r Sys.Date()`"
 bibliography: Tex/ref.bib       # Do not edit: Keep this naming convention and location.
 output:
