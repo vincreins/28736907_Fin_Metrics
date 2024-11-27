@@ -84,23 +84,18 @@ library(RcppRoll)
 library(PerformanceAnalytics)
 library(tbl2xts)
 library(xts)
-unhedged <- Return %>%
-    select(date, Portfolio_Return) %>%
-    mutate(date = as.yearmon(date))
-hedged <- Return_hedged %>% select(date, Portfolio_Return_Hedged)%>%
-    mutate(date = as.yearmon(date))
-merged <- left_join(unhedged, hedged, by = "date") %>% tbl2xts::tbl_xts()
+
+merged <- create_merged(Return, Return_hedged)
 
 cur_ret <- USD_ZAR_returns %>%
     mutate(date = as.yearmon(date)) %>%
     tbl_xts() %>%
     .["2002-02/"] 
 
-chart.CumReturns(merged)
 density_plot(merged)
-Return.annualized(merged)
+density_plot_var(merged)
+Return.annualized(merged, 12)
 chart.RollingPerformance(merged, legend.loc = 3)
-lm(merged$Portfolio_Return_Hedged~cur_ret$Return_cur)
 ```
 
 

@@ -130,15 +130,15 @@ Load data, transform to xts format, and combine in one dataset for easier work
 
 ```{r}
 pacman::p_load("xts", "tbl2xts", "PerformanceAnalytics", "RcppRoll")
-threshold_date <- as.Date("2003-10-31")
-AI_xts <- AI_Funds %>% tbl_xts()
-ASISA_xts <- ASISA %>% select(-Index, -FoF) %>% spread(Fund, Returns) 
 
-ASISA_median <- median_A(ASISA)
+AI_xts <- AI_Funds %>% tbl_xts()
+ASISA_xts <- ASISA %>% select(-Index, -FoF) %>% spread(Fund, Returns) %>% tbl_xts() 
+
+ASISA_mean <- mean_A(ASISA) 
 
 BM_xts <- BM %>% select(-Tickers) %>% tbl_xts()
 
-merged <- merge.xts(AI_xts, ASISA_median, BM_xts) %>% na.omit() 
+merged <- merge.xts(AI_xts, ASISA_mean, BM_xts) %>% na.omit() 
 colnames(merged) <- c("AI_Fund", "Managed_Funds", "Benchmark")
 
 ```
@@ -150,14 +150,15 @@ and the benchmark fund to compare the cumulative performance
 chart.CumReturns(merged, legend.loc = 1)
 ```
 
-Since the performance for the whole time does not say a lot about the performance
-for reasons such as the strong benefits or punishments for actions i the beginning,
-the rolling performance will be plotted.
+After calculating cumulative returns to assess overall performance, rolling returns are analyzed to evaluate consistency and resilience over different time periods, addressing potential biases from early outcomes or isolated events. 
+Again, I will use the PerformanceAnalytics package, to calculate 3 year rolling returns.
 
 ```{r}
 chart.RollingPerformance(merged, 36, legend.loc = 3)
-
 ```
+
+
+
 ```{r}
 density_plot(merged, 36)
 ```
@@ -173,6 +174,7 @@ Lets look at the downside deviation which measures the risk of an investment by 
 
 ```{r}
 DownsideDeviation(merged, 0)
+chart.Drawdown(merged, legend.loc = 3)
 ```
 
 We can see that the AI funds downside deviation is more thandouble as high as the Managed funds,

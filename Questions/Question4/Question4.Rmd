@@ -148,7 +148,6 @@ Stock concentration
 
 ```{r}
 
-
 plot_stock_concentration(merged_data, ALSI)
 
 ```
@@ -156,123 +155,17 @@ plot_stock_concentration(merged_data, ALSI)
 
 
 ```{r}
-ALSI_bench <- select(ALSI, c("date", "J203", "Sector"))
-
-sector_weights_ALSI <- ALSI_bench %>%
-  group_by(date, Sector) %>%
-  summarise(total_weight = sum(J203, na.rm = TRUE)) %>%
-  ungroup()
-
-ggplot(sector_weights_ALSI, aes(x = date, y = total_weight, fill = Sector)) +
-  geom_bar(stat = "identity", position = "stack") +
-  labs(title = "Total Weight per Sector by Date",
-       x = "Date",
-       y = "Total Weight") +
-  theme_minimal() +
-  scale_fill_brewer(palette = "Set3")
-```
-
-#  Methodology \label{Meth} {-}
-
-## Subsection {-}
-Ideally do not overuse subsections. It equates to bad writing.^[This is an example of a footnote by the way. Something that should also not be overused.]
-
-## Math section {-}
-
-Equations should be written as such:
-
-\begin{align}
-\beta = \sum_{i = 1}^{\infty}\frac{\alpha^2}{\sigma_{t-1}^2} \label{eq1} \\
-\int_{x = 1}^{\infty}x_{i} = 1 \notag
-\end{align}
-
-If you would like to see the equations as you type in Rmarkdown, use $ symbols instead (see this for yourself by adjusted the equation):
-
-$$
-\beta = \sum_{i = 1}^{\infty}\frac{\alpha^2}{\sigma_{t-1}^2} \\
-\int_{x = 1}^{\infty}x_{i} = 1
-$$
-
-Writing nice math requires practice. Note I used a forward slashes to make a space in the equations. I can also align equations using  __\&__, and set to numbering only the first line. Now I will have to type ``begin equation'' which is a native \LaTeX command. Here follows a more complicated equation:
-
-
-\begin{align}
-	y_t &= c + B(L) y_{t-1} + e_t   \label{eq2}    \\ \notag
-	e_t &= H_t^{1/2}  z_t ; \quad z_t \sim  N(0,I_N) \quad \& \quad H_t = D_tR_tD_t \\ \notag
-		D_t^2 &= {\sigma_{1,t}, \dots, \sigma_{N,t}}   \\ \notag
-		\sigma_{i,t}^2 &= \gamma_i+\kappa_{i,t}  v_{i, t-1}^2 +\eta_i  \sigma_{i, t-1}^2, \quad \forall i \\ \notag
-		R_{t, i, j} &= {diag(Q_{t, i, j}}^{-1}) . Q_{t, i, j} . diag(Q_{t, i, j}^{-1})  \\ \notag
-		Q_{t, i, j} &= (1-\alpha-\beta)  \bar{Q} + \alpha  z_t  z_t'  + \beta  Q_{t, i, j} \notag
-\end{align}
-
-Note that above we've aligned the equations by the equal signs. I also want only one tag, and I create spaces using ``quads''.
-
-See if you can figure out how to do complex math using the two examples provided.
-
-<!-- $$ -->
-<!-- This is a commented out section in the writing part. -->
-<!-- Comments are created by highlighting text, amnd pressing CTL+C -->
-<!-- \\begin{align} -->
-<!-- \\beta = \\alpha^2 -->
-<!-- \end{align} -->
-<!-- $$ -->
-
-## Results {-}
-
-Tables can be included as follows. Use the _xtable_ (or kable) package for tables. Table placement = H implies Latex tries to place the table Here, and not on a new page (there are, however, very many ways to skin this cat. Luckily there are many forums online!).
-
-```{r table-1, echo=TRUE, message=FALSE, warning=FALSE, results="asis"}
+# Load the knitr library for formatting
 library(knitr)
-library(kableExtra)
 
-data <- mtcars[1:5,] %>% tibble::as_tibble()
+sfm <- rbind(
+  sfm,
+  data.frame(Metric = "Information Ratio (dynamic)", Value = IR, stringsAsFactors = FALSE),
+  data.frame(Metric = "Tracking Error (dynamic)", Value = TE, stringsAsFactors = FALSE)
+)
+# Display the sfm data frame as a formatted table
+kable(sfm, caption = "Summary of Statistics from sfm")
 
-table <- kable(data, row.names = TRUE,
-      caption = 'Table with kable() and kablestyling()',
-      format = "html", booktabs = T) %>%
-        kable_styling(full_width = T,
-                      latex_options = c("striped",
-                                        "scale_down",
-                                        "HOLD_position"),
-                      font_size = 13)
-table
-```
-
-To reference calculations __in text__, _do this:_ From table \@ref(tab:table-1) we see the average value of mpg is `r mean(mtcars[1:5,]$mpg)`. Notice the use of table-2 in the chunk name. That's the good stuff.
-
-\newpage
-
-
-# Model summary
-
-
-Check [this](https://vincentarelbundock.github.io/modelsummary/articles/modelsummary.html) link out for more. Note this package also plays nicely with gt, kableExtra, etc.
-
-```{r}
-
-library(modelsummary);library(gt)
-
-# modelsummary works well with gt:
-
-Tab <-
-
-datasummary_skim(swiss,
-type="numeric",
- histogram=T,
- title = "Summary: Numeric variables", output = "gt") %>%
-
-        # column labels
-    tab_spanner(label = 'Statistics', columns = c("Mean", "SD")) %>%
-    tab_spanner(label = 'Quantiles', columns = starts_with("P")) %>%
-    # footnote
-    tab_footnote(footnote = md("A very **important** Footnote."),
-                 locations = cells_body(rows = 3, columns = 1)) %>%
-
-    tab_options(data_row.padding = px(4),table.width = pct(60),
-            column_labels.font.size = pct(100),
-            column_labels.vlines.width = 1, table.font.size = pct(60))
-
-Tab
 ```
 
 

@@ -52,6 +52,122 @@ Texevier::create_template_html(directory = "Questions",
                           template_name = "Question6"
 )
 ```
+Question 1
+
+I am tasked to showcase the performance of the AI Implementer fund, comparing it against the benchmark (Capped SWIX) and industry peers (ASISA active managers). Using insights inspired by Bill Sharpe's work, I will illustrate how actively managed funds often struggle to outperform their benchmarks and the AI fund after fees. Employing a rolling period approach, I will highlight key performance metrics, emphasizing the systematic advantages of the AI fund through graphical representations and data-driven insights.
+
+I will start my analysis using the PerfomanceAnalytics package, to make use of this package, it is necessary to spread the data. 
+```{r}
+AI_xts <- AI_Funds %>% tbl_xts()
+BM_xts <- BM %>% select(-Tickers) %>% tbl_xts()
+```
+
+Since we also want to compare the AI Fund to managed funds, I created the function mean_A which calculates the returns across all funds for each date. 
+
+```{r}
+ASISA_mean <- mean_A(ASISA) 
+```
+
+The format of the three datasets now allows to merge them. Furthermore, the columns are renamed for clarity. The merged dataset can then be used to plot a cumulative return chart.
+
+```{r}
+merged <- merge.xts(AI_xts, ASISA_mean, BM_xts) %>% na.omit() 
+colnames(merged) <- c("AI_Fund", "Managed_Funds", "Benchmark")
+
+chart.CumReturns(merged, legend.loc = 1)
+```
+
+The density_plot function creates a density plot to visualize and compare the distribution of rolling returns for multiple funds or data series, including the AI Implementer fund, the benchmark (Capped SWIX), and industry peers (ASISA active managers). It calculates rolling averages over a specified window size (window_size, default is 36) to smooth the data and better reflect trends over time. 
+
+The function converts the rolling averages into a tidy data frame, calculates mean returns for each fund or series, and generates a density plot using ggplot2. The plot displays density curves for each fund, with vertical dashed lines marking the mean returns, and includes titles and labels for clarity.
+
+This visualization helps fulfill the task's goal by demonstrating how the AI fund's return distribution compares to the benchmark and peers, emphasizing return consistency and central tendencies.
+
+```{r}
+density_plot(merged, 36)
+```
+
+The density_plot_var function creates a density plot to visualize and compare the distribution of rolling variances for multiple funds or data series over a specified window size (window_size, default is 36). It calculates rolling variances to measure the variability of returns over time, which reflects the risk profiles of the AI Implementer fund, the benchmark (Capped SWIX), and industry peers (ASISA active managers).
+
+The function converts the rolling variances into a tidy data frame, computes mean variances for each fund, and generates a density plot using ggplot2. The plot displays density curves for the variances of each fund, with vertical dashed lines indicating the mean variances. Titles, labels, and themes enhance interpretability.
+
+This plot helps illustrate the relative risk levels and variability patterns among the funds, complementing the return-focused analysis. By showcasing the AI fund's risk distribution compared to the benchmark and peers, it provides additional evidence supporting its systematic performance advantage, aligning with the task's goal to highlight the limitations of active management and the strengths of the AI fund.
+
+```{r}
+density_plot_var(merged, 36)
+```
+
+
+Calculating the downside deviation and analyzing drawdowns through these functions provides insights into risk management and the behavior of the AI Implementer fund compared to the benchmark (Capped SWIX) and industry peers (ASISA active managers).By calculating downside deviation, we can highlight how the AI fund manages negative outcomes relative to peers. A drawdown chart visually represents the peak-to-trough declines in value over time, offering an intuitive way to assess the severity and duration of losses.
+
+```{r}
+DownsideDeviation(merged, 0)
+chart.Drawdown(merged, legend.loc = 3)
+```
+
+Question 2
+
+This task replicates and expands on a study examining the impact of systematic currency hedging on a 60/40 equity and bond portfolio with a 70/30 local/global split. By comparing rolling volatilities for hedged and unhedged scenarios, I will highlight how the rand's negative correlation with global assets reduces portfolio volatility and enhances returns when left unhedged. Additional figures and tables will support the argument against long-term hedging, emphasizing its tactical, short-term value.
+
+```{r}
+Indexes <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question2/data/Cncy_Hedge_Assets.rds")
+ZAR <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question2/data/Monthly_zar.rds")
+```
+
+I will start by calculating the currency returns, which will be needed for the replication of the graphic
+
+```{r}
+ZAR_YM <- ZAR %>% mutate(date = format(as.Date(date), "%Y-%m"))
+USD_ZAR_returns <- ZAR_YM %>% mutate(Return_cur = value/lag(value) - 1)
+```
+
+In a next step the hedged and unhedged returns are calculated. The unhedged returns are calculated by the calculate_returns function, which computes unhedged portfolio returns by converting local indices (42% J433, 28% ALBI) to USD using exchange rates, combining them with global returns (18% MSCI ACWI, 12% Bloomberg Agg), and including USD/ZAR returns for analysis. hedged_returns calculates fully hedged portfolio returns using the same weights but retains local indices directly in ZAR, without exchange rate adjustments. The hedged_returns function calculates hedged portfolio returns using the same weights but keeps local indices in ZAR, excluding currency effects.
+
+```{r}
+Return <- calculate_returns(Indexes, ZAR_YM, USD_ZAR_returns)
+Return_hedged <- hedged_returns(Indexes)
+```
+
+To compute the graph from the study, the unhedged returns and the exchange rate returns are merged to one data frame. This data frame is then used with the create_pot function.
+The create_plot function generates a scatter plot with USD-ZAR returns (Return_cur) on the x-axis and global portfolio USD returns (Global_Return) on the y-axis, dividing data into quadrants based on the sign of the returns. It calculates and annotates quadrant percentages, adds descriptive annotations, shades specific areas, and overlays a trend line. Marginal density plots for USD-ZAR and portfolio returns are added on the top and right, respectively, and the plots are combined into a single layout with source information included.
+
+```{r}
+
+data_global <- Return %>% select(date, Global_Return, Return_cur) 
+create_plot(data_global)
+```
+
+To further examine the performance and volatility differences between hedged and unhedged portfolios, I merge both data frames using the create_merged function; the function uses left_join to merge both sets by date.
+
+```{r}
+merged <- create_merged(Return, Return_hedged)
+
+cur_ret <- USD_ZAR_returns %>%
+    mutate(date = as.yearmon(date)) %>%
+    tbl_xts() %>%
+    .["2002-02/"] 
+```
+
+We can reuse the functions created in Question 1, which produce density plots for the returns and the variance, both for hedged and unhedged data. This can show the impact of hedging on the volatility and the return.
+
+```{r}
+density_plot(merged)
+```
+
+```{r}
+density_plot_var(merged)
+```
+
+To gain further insights on the return differences of hedged and unhedged data the annualized returns will be calculated, this will present the geometric average return. To find out whether the results are consistent and not just driven by outliers, the rolling returns will be plotted.
+
+```{r}
+Return.annualized(merged, 12)
+```
+
+```{r}
+chart.RollingPerformance(merged, legend.loc = 3)
+```
+
 
 Now add the relevant data for each question into the respective data/ folders in the different Question folders.
 
