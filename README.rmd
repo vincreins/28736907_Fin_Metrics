@@ -169,6 +169,69 @@ chart.RollingPerformance(merged, legend.loc = 3)
 ```
 
 
+Question 3
+
+
+This Question explores the methodologies and performance differences between the ALSI (J203) and SWIX (J403) indexes. The analysis examines their size-based performance (large, mid, and small caps), sector exposures, and stock concentration trends over time, highlighting key distinctions in return profiles. Additionally, the report evaluates the impact of capping levels (5%, 10%, and uncapped) on both indexes, addressing the JSE's query regarding the application of capping. This study aims to provide actionable insights into how capping influences index characteristics and overall performance.
+
+```{r}
+ALSI <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question3/data/ALSI.rds")
+RebDays <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question3/data/Rebalance_days.rds")
+MonZar <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question3/data/Monthly_zar.rds")
+```
+
+To prepare the data for further analyzes, the data will be transformed to a wide format by returns by Tickers. To calculate further Portfolio performance, the weights of the respective Tickers will be extracted using the weight function. The weights function normalizes portfolio weights for each ticker in a dataset by selecting relevant columns, reshaping the data into a wide format, and dividing each value by the row sum to ensure weights in each row sum to 1. It handles missing values by assigning equal weights for rows with all NA values and replaces NAs in numeric columns with 0. The function validates that all row sums are equal to 1 and returns the adjusted weights as a time-series object.
+
+```{r}
+rtn <- ALSI %>% select(date, Tickers, Return) %>% spread(Tickers, Return) %>% tbl_xts()
+weights_ALSI <- weights(ALSI, "J203")
+weights_SWIX <- weights(ALSI, "J403")
+```
+
+The reshaping and calculations of the data in the previous step allow to calculate cumaltive returns, this is achieved by the cum_returns function. The cum_returns function calculates and visualizes cumulative returns for two portfolios based on their respective weights. It uses the Safe_Return.portfolio function to compute portfolio returns for the given weight sets, converts the returns to cumulative values, and merges the results into a tidy format. The cumulative returns are plotted as a line chart over time, with separate lines for each portfolio, labeled by their respective weight names (weight_name1 and weight_name2).
+
+```{r}
+cum_returns(return_data = rtn, 
+                         weights_data1 = weights_ALSI, 
+                         weights_data2 = weights_SWIX, 
+                         weight_name1 = "ALSI", 
+                         weight_name2 = "SWIX")
+```
+
+To take a deeper dive into the different Capitalizations, the rolling performance of the different capitalizations will be Analyzed. If big differences can be found, a performance difference can be traced back to that. To achieve this, the function ALSI_index will be applied. The ALSI_index function processes ALSI data to compute the average return for each index by date. It selects relevant columns (date, Return, Index_Name), groups the data by date and Index_Name, calculates the mean return, arranges the data by date, removes missing values, reshapes it into a wide format with Index_Name as columns, and converts the result into a time-series (xts) object.
+
+```{r}
+ALSI_index_ret <- ALSI_index(ALSI)
+chart.RollingPerformance(ALSI_index_ret, width = 252, legend.loc = 1)
+```
+
+To identify differences in the sectors, the two Funds are active are Barchart will be plotted, with the sector share for each fund. This will be done using the sector_exp function. The sector_exp function calculates and visualizes the average sector exposure for the ALSI (J203) and SWIX (J403) methodologies. It groups the data by sector and date, computes the total weight for each methodology, reshapes the data into a long format, and calculates the mean weight for each sector-methodology combination. The results are plotted as a bar chart, showing average weights by sector for both methodologies, with separate bars for ALSI and SWIX.
+
+```{r}
+sector_exp(ALSI)
+```
+
+Another difference might be found in the Stock concentration, the share the n stocks with highest weight have in total portfolio. This allows conclusion about the diversification. This will be done using the stock_concentration function. The stock_concentration function calculates the contribution of the top n stocks (default 10) to the total weight in the ALSI (J203) and SWIX (J403) indexes for each date. It selects the top n stocks by weight for each index, calculates their combined contribution, merges the results by date, and plots a line chart to compare the stock concentration trends over time for both indexes.
+
+```{r}
+stock_concentration(ALSI, 10)
+```
+
+To answer the secon part of the question, on what impact capping has at different levels, the Capped_funds function was created. The Capped_funds function calculates and compares capped index values for specified Indexes (J203_cols) and weight cap (W_Cap) values. It filters rebalancing days, selects the top 30 stocks for each Index, normalizes the weights, and applies a proportional capping mechanism to ensure no stock exceeds the specified weight cap. The function computes portfolio returns, cumulative index values, and metadata for each combination of Indexes and weight cap. It outputs a dataset of results and a line plot comparing capped indexes across scenarios over time.
+
+```{r}
+Capped_funds(
+  ALSI = ALSI, 
+  RebDays = RebDays, 
+  J203_cols = c("J203"), 
+  W_Cap_values = c(0.05, 0.10, 1)
+)
+```
+
+Question 4
+
+
+
 Now add the relevant data for each question into the respective data/ folders in the different Question folders.
 
 Check that your .gitignore file ignores all folders starting with data.

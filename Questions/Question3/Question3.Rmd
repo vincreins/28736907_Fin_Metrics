@@ -153,21 +153,12 @@ cum_returns(return_data = rtn,
 Look at performance of different caps
 
 ```{r}
-ALSI_index <- ALSI %>% select(date, Return, Index_Name) %>% 
-    group_by(date, Index_Name) %>%
-  summarise(Average_Return = mean(Return, na.rm = TRUE)) %>%
-  arrange(date) %>% na.omit() %>% spread(Index_Name, Average_Return)
 
-ALSI_index <- ALSI %>%
-  select(date, Return, Index_Name) %>%
-  group_by(date, Index_Name) %>%
-  summarise(Average_Return = mean(Return, na.rm = TRUE)) %>%
-  arrange(date) %>%
-  na.omit() %>%
-  spread(Index_Name, Average_Return) %>% tbl_xts()
+
+ALSI_index_ret <- ALSI_sector(ALSI)
 
 library(PerformanceAnalytics)
-chart.CumReturns(ALSI_index, legend.loc = 1)
+chart.RollingPerformance(ALSI_index_ret, width = 252, legend.loc = 1)
 
 
 ```
