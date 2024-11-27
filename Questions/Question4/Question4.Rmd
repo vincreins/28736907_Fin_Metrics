@@ -1,5 +1,5 @@
 ---
-title: "Paged HTML Document"
+title: "Question 4: Portfolio Commentary"
 author: "NF Katzke"
 date: "November 2021"
 # date: "`r Sys.Date()`"
@@ -15,37 +15,35 @@ output:
     toc: true
     # change to true for a self-contained document, but it'll be a litte slower for Pandoc to render
     self_contained: TRUE
-abstract: |
-    This is an abstract. Much can be written here. Uncomment this line to go without an abstract.
-    Abstracts have no spaces, but can have bullets.
-
-    Bullets can be created as follows
-
-    + You can add bullets, but do not add colons please.
-
-    + Line breaks are also not permitted.
+# <!-- abstract: | -->
+# <!--     This is an abstract. Much can be written here. Uncomment this line to go without an abstract. -->
+# <!--     Abstracts have no spaces, but can have bullets. -->
+# 
+# <!--     Bullets can be created as follows -->
+# 
+# <!--     + You can add bullets, but do not add colons please. -->
+# 
+# <!--     + Line breaks are also not permitted. -->
 
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
 pacman::p_load(modelsummary, gt, knitr, kableExtra, tidyverse)
+if(!require("tidyverse")) install.packages("tidyverse")
+library(tidyverse)
+list.files('code/', full.names = T, recursive = T) %>% as.list() %>% walk(~source(.))
+library(tbl2xts)
 ```
 
 \newpage
 
-# Introduction {-}
-
-
-
-> I suggest renaming the top line after \@article, as done in the template ref.bib file, to something more intuitive for you to remember. Do not change the rest of the code. Also, be mindful of the fact that bib references from google scholar may at times be incorrect. Reference Latex forums for correct bibtex notation.
 
 <!-- The following is a code chunk. It must have its own unique name (after the r), or no name. After the comma follows commands for R which are self-explanatory. By default, the code and messages will not be printed in your pdf, just the output: -->
 
 ```{r }
 
-  # This is just a random plot to show you a plot. This is done if the getwd() does not point to your Template's directory.
-  # Set WD below to your project's working directory.
+ 
 
 Port_Holds <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question4/data/Fund_Holds.rds")
 Port_Rets <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question4/data/Fund_Rets.rds")
@@ -56,8 +54,7 @@ ALSI <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question4/da
 
 ```
 
-Relative Risk
-Tracking Error
+
 
 ```{r}
 library(tidyverse)
@@ -84,41 +81,15 @@ pacman::p_load(tbl2xts, PerformanceAnalytics)
 xts_port <- tbl_xts(Port_Rets)
 xts_bench <- tbl_xts(BM_Rets)
 
-
-
-
-
-TE <- fmxdat::Safe_TE(Ra, Rs, scale = 12)
 ```
+
+The Tracking Error indicates that the fund's returns have deviated from the benchmark's returns by an average of 5.07% annually. 
 
 ```{r}
-chart.RollingPerformance(merged, 12, legend.loc = 1)
+fmxdat::Safe_TE(Ra, Rs, scale = 12)
 ```
 
-
-```{r}
-
-```
-
-
-```{r}
-chart.Drawdown(xts_port,main = "Drawdowns: Sanlam", 
-               col = "steelblue")
-```
-
-```{r}
-chart.CumReturns(xts_port,main = "Drawdowns: Sanlam", 
-               col = "steelblue")
-```
-
-```{r}
-chart.RollingRegression(Ra = xts_port, Rb = xts_bench, width = 12,
-    attribute = c("Beta"))
-```
-
-```{r}
-sfm <- table.SFM(Ra = xts_port, Rb = xts_bench, 12)
-```
+The cumulative returns of the SnakeOil Fund slightly lag behind the benchmark overall, though there are earlier periods where the fund outperformed the benchmark at certain points.
 
 ```{r}
 
@@ -126,61 +97,45 @@ merged <- merge.xts(xts_port, xts_bench)
 chart.CumReturns(merged, legend.loc = 1)
 ```
 
-Relative performane
+The rolling 12-month beta initially stayed near 1.0, suggesting alignment with the benchmark, then dropped below 1.0 around 2020, indicating reduced market sensitivity. The beta peaked above 1.1 in 2022, showing increased sensitivity to the benchmark before declining again, reflecting changing exposure and positioning relative to market movements.
+
+```{r}
+chart.RollingRegression(Ra = xts_port, Rb = xts_bench, width = 12,
+    attribute = c("Beta"))
+```
+
+
+```{r}
+sfm <- table.SFM(Ra = xts_port, Rb = xts_bench, 12)
+```
+
+
+The relative performance chart shows how the fund's cumulative returns have evolved compared to the benchmark over time. It highlights periods where the fund slightly outperformed or underperformed, with the ratio fluctuating close to 1.0, indicating generally tight alignment with the benchmark but with moments of relative underperformance becoming more prominent in recent periods.
+
 ```{r}
 chart.RelativePerformance(xts_port, xts_bench)
 ```
-Information ratio
+
+The Information Ratio of -4.69 indicates that the fund's active management has significantly underperformed its benchmark on a risk-adjusted basis, suggesting that the deviations from the benchmark have not added value and have instead detracted from performance.
+
 ```{r}
 library(rportfolio)
 
-IR <- ratio.information(xts_port, xts_bench)
-```
-
-Sector weights
-
-```{r}
-
-plot_sector_weights(Port_Holds, BM_Holds)
-```
-
-Stock concentration
-
-```{r}
-
-plot_stock_concentration(merged_data, ALSI)
-
+ratio.information(xts_port, xts_bench)
 ```
 
 
+The fund demonstrates a high correlation (0.9568) and strong alignment with the benchmark (R-squared of 0.9155), but its active management has underperformed, as evidenced by a slightly negative annualized active premium (-0.0061) and an Information Ratio of -0.1233. While the fund has lower sensitivity to the benchmark (Beta of 0.8789) and moderate systematic risk compensation (Treynor Ratio of 0.1240), the minimal annualized alpha (0.0071) and tracking error (0.0498) indicate limited active value generation.
 
 ```{r}
-# Load the knitr library for formatting
+
 library(knitr)
 
-sfm <- rbind(
-  sfm,
-  data.frame(Metric = "Information Ratio (dynamic)", Value = IR, stringsAsFactors = FALSE),
-  data.frame(Metric = "Tracking Error (dynamic)", Value = TE, stringsAsFactors = FALSE)
-)
-# Display the sfm data frame as a formatted table
+
 kable(sfm, caption = "Summary of Statistics from sfm")
 
 ```
 
-
-# References {-}
-
-<div id="refs"></div>
-
-
-# Appendix {-}
-
-## Appendix A {-}
-
-Some appendix information here
-
-## Appendix B {-}
 
 
 

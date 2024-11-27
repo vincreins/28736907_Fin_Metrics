@@ -15,42 +15,30 @@ output:
     toc: true
     # change to true for a self-contained document, but it'll be a litte slower for Pandoc to render
     self_contained: TRUE
-abstract: |
-    This is an abstract. Much can be written here. Uncomment this line to go without an abstract.
-    Abstracts have no spaces, but can have bullets.
-
-    Bullets can be created as follows
-
-    + You can add bullets, but do not add colons please.
-
-    + Line breaks are also not permitted.
+# <!-- abstract: | -->
+# <!--     This is an abstract. Much can be written here. Uncomment this line to go without an abstract. -->
+# <!--     Abstracts have no spaces, but can have bullets. -->
+# 
+# <!--     Bullets can be created as follows -->
+# 
+# <!--     + You can add bullets, but do not add colons please. -->
+# 
+# <!--     + Line breaks are also not permitted. -->
 
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
 pacman::p_load(modelsummary, gt, knitr, kableExtra, tidyverse)
+if(!require("tidyverse")) install.packages("tidyverse")
+library(tidyverse)
+list.files('code/', full.names = T, recursive = T) %>% as.list() %>% walk(~source(.))
+library(tbl2xts)
 ```
 
 \newpage
 
-# Introduction {-}
 
-This template has been adapted from pagedown::html_paged and is intended to help you simply create HTML that has a readable (pdf) feel to it.
-
-References are to be made as follows: [@fama1997] and @grinold2000 Such authors could also be referenced in brackets [@grinold2000] and together [@fama1997 \& @grinold2000]. Source the reference code from scholar.google.com by clicking on ``cite'' below article name. Then select BibTeX at the bottom of the Cite window, and proceed to copy and paste this code into your ref.bib file, located in the directory's Tex folder. Open this file in Rstudio for ease of management, else open it in your preferred Tex environment. Add and manage your article details here for simplicity - once saved, it will self-adjust in your paper.
-
-> I suggest renaming the top line after \@article, as done in the template ref.bib file, to something more intuitive for you to remember. Do not change the rest of the code. Also, be mindful of the fact that bib references from google scholar may at times be incorrect. Reference Latex forums for correct bibtex notation.
-
-Writing in Rmarkdown is surprizingly easy - see [this website](https://www.rstudio.com/wp-content/uploads/2015/03/rmarkdown-reference.pdf) cheatsheet for a summary on writing Rmd writing tips.
-
-# Data  {-}
-
-Notice how I used the curly brackets and dash to remove the numbering of the data section.
-
-Discussion of data should be thorough with a table of statistics and ideally a figure.
-
-In your tempalte folder, you will find a Data and a Code folder. In order to keep your data files neat, store all of them in your Data folder. Also, I strongly suggest keeping this Rmd file for writing and executing commands, not writing out long pieces of data-wrangling. In the example below, I simply create a ggplot template for scatter plot consistency. I suggest keeping all your data in a data folder.
 
 <!-- The following is a code chunk. It must have its own unique name (after the r), or no name. After the comma follows commands for R which are self-explanatory. By default, the code and messages will not be printed in your pdf, just the output: -->
 
@@ -62,6 +50,16 @@ msci <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question6/da
 filter(Name %in% c("MSCI_ACWI", "MSCI_USA", "MSCI_RE", "MSCI_Jap"))
 
 ```
+
+The graph highlights the cumulative returns of a balanced index fund, showcasing its growth over time under a disciplined investment strategy that incorporates various limitations to manage risk and ensure diversification. Key features of this strategy include:
+
+- Excluding assets with less than 3 years of return data to minimize the uncertainty associated with insufficient historical performance records.
+- Implementing a quarterly rebalancing mechanism to maintain the desired allocation and capitalize on market fluctuations without excessive turnover.
+- Capping exposure to bonds and credit instruments at 25% to avoid over-concentration in fixed-income securities while retaining some stability in the portfolio.
+- Restricting exposure to equities at 60%, balancing growth potential with risk control to prevent overexposure to the volatility of equity markets.
+- Limiting the exposure to any single asset to 40%, ensuring no single asset significantly impacts the overall performance and maintaining a high degree of diversification.
+
+The steady upward trajectory of the cumulative index suggests that these restrictions and rebalancing practices contributed to a well-balanced, disciplined portfolio capable of withstanding market volatility and achieving consistent long-term growth.
 
 
 ```{r}
@@ -100,18 +98,7 @@ plot_safe_returns(rts, wts)
 ```
 
 
-# References {-}
 
-<div id="refs"></div>
-
-
-# Appendix {-}
-
-## Appendix A {-}
-
-Some appendix information here
-
-## Appendix B {-}
 
 
 
