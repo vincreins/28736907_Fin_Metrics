@@ -230,23 +230,150 @@ Capped_funds(
 
 Question 4
 
+I this question I will analyze the performance and positioning of SnakeOil Capital, a long-only domestic equity fund tracking the FTSE/JSE Capped SWIX. The analysis will cover relative risk (e.g., tracking error, active share, downside risk), relative performance (e.g., return comparisons, information ratio, rolling performance), fund positioning (e.g., stock and sector over/underweights), and performance attribution (e.g., drivers of relative and absolute performance, success of positioning decisions). The findings will be presented visually in a PowerPoint deck.
+
+```{r}
+Port_Holds <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question4/data/Fund_Holds.rds")
+Port_Rets <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question4/data/Fund_Rets.rds")
+BM_Holds <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question4/data/BM_Holds.rds")
+BM_Rets <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question4/data/BM_Rets.rds")
+Capped_SWIX <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question4/data/Capped_SWIX.rds")
+ALSI <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question4/data/ALSI.rds")
+
+```
+
+Question 5
+
+I this question I will analyze the South African rand (ZAR) relative to the USD, comparing its volatility and performance to other major currencies. The analysis will measure volatility across time and compare the ZAR with G10 currencies to confirm if it is among the most volatile. Additionally, I will evaluate the ZAR's performance during favorable G10 currency carry trade periods and assess its behavior during phases of Dollar strength, indicating risk-on sentiment. Insights will be presented using tables, graphs, and statistical comparisons to support the conclusions.
+
+```{r}
+cncy <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question5/data/currencies.rds")
+cncy_Carry <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question5/data/cncy_Carry.rds")
+cncy_value <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question5/data/cncy_value.rds")
+cncyIV <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question5/data/cncyIV.rds")
+bbdxy <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question5/data/bbdxy.rds")
+
+```
+
+To prepare the data for further analysis, the currency data will be transformed to xts format. Since the data set contains everyday including weekends, where no trade data is available, the Weekends will be dropped from the data set. To enable an analyzes over a long period of time, and therefore many degrees of freedom,  all currencies which only had data available at a later point in time will be excluded from the analyzis. 
+
+```{r}
+xts_cncy <- cncy %>% spread(Name, Price) %>% tbl_xts()
+index(xts_cncy) <- as.Date(index(xts_cncy))
+xts_cncy <- xts_cncy[!weekdays(index(xts_cncy)) %in% c("Saturday", "Sunday"), ]
+xts_cncy <- xts_cncy[, !apply(is.na(xts_cncy), 2, any)]
+```
+
+To get a first idea, which currencies are especially volatile, the currency_volatility function will be used. The currency_volatility function calculates the rolling volatility of the top 10 most volatile currencies in a time series dataset. It computes daily returns for each currency, identifies the top 10 currencies with the highest standard deviation of returns, and filters the dataset to include only these currencies. A 252-day rolling standard deviation is then applied to measure volatility trends over time, and the results are visualized in a time-series plot with a legend.
+
+```{r}
+currency_volatility(xts_cncy)
+```
+
+To also get an Idea, whether this aligns with the implied volatility by the markets, the same function will be applied to the cncyIV dataset.
+
+```{r}
+xts_IV <- cncyIV %>% spread(Name, Price) %>% tbl_xts() %>% .["1999-03-01/"] 
+xts_IV <- xts_IV[, colSums(is.na(xts_IV)) == 0]
+
+currency_volatility(xts_IV)
+```
+
+These results answer the question, whether the ZAR is one of the most volatile currencies. To investigate, whether the ZAR has performed well when G10 currency carry trades have been favourable, and whether it has benefited during periods with strong dollars, a regression model is build. To do this, in a first step the process_data function is applied. The process_data function merges multiple datasets containing the currency carry index, Dollar Index, ZAR implied volatility, and ZAR exchange rate based on the date column. It renames key columns for clarity, removes redundant columns, and calculates normalized values (z-scores) for each variable by subtracting the mean and dividing by the standard deviation. The function returns a cleaned and normalized dataset for further analysis.
+
+```{r}
+ZAR <- xts_cncy %>% xts_tbl() %>% select(date, SouthAfrica_Cncy)
+ZAR_IV <- cncyIV %>% spread(Name, Price) %>% select(date, SouthAfrica_IV)
+
+data <- process_data(cncy_Carry, bbdxy, ZAR_IV, ZAR)
+
+model <- lm(ZAR_Rate_norm ~ Carry_Index_norm + Dollar_Index_norm + Volatility_norm, data = data)
+
+regression_summary(model)
+```
+
+To visualize the results from the regression and substantiate it, the normalized data will plotted.
+
+```{r}
+plot_normalized(data)
+```
+
+Subsequently the plots function will be applied. The plots function generates a set of scatter plots to visualize the relationships between the ZAR exchange rate and key independent variables: the Carry Index, Dollar Index, and implied volatility. For each variable, a scatter plot is created with a linear regression line overlaid to indicate trends.
+The first plot shows the relationship between the ZAR exchange rate and the Carry Index, with a blue regression line. The second plot examines the ZAR exchange rate against the Dollar Index, using a green regression line. The third plot explores the ZAR exchange rate and implied volatility, represented by a red regression line. The fourth plot repeats the ZAR vs. Carry Index relationship for comparison.
+These plots are arranged into a grid with two columns using grid.arrange, providing a cohesive visual summary of the ZAR exchange rate's interactions with the specified variables.
+
+```{r}
+plots(data)
+```
+
+The plot_rolling_correlations provide a visual insight into the correlation results, and furthermore ensures, that the result is not driven by a few outliers. The plot_rolling_correlations function calculates and visualizes the rolling correlations between the ZAR exchange rate and three predictors: the Carry Index, Dollar Index, and implied volatility. It uses a specified rolling window (default: 252 days) to compute correlations over time.
+
+The function first calculates rolling correlations for each predictor using rollapply, aligning results to the right and filling gaps with NA values. It then generates a line plot with separate lines for each predictor, showing how their correlations with the ZAR exchange rate evolve over time. The output is a list containing the augmented dataset with calculated correlations and the correlation plot.
+
+```{r}
+plot_rolling_correlations(data, 252)
+```
+
+Question 6
+
+In this question, I will construct a Global Balanced Index Fund portfolio using traded global indexes. The analysis will incorporate a long-only strategy with monthly data post-2010, focusing on risk and return optimization using a covariance matrix and mean forecasts based on a look-back period of less than three years. The portfolio will adhere to constraints on asset exposure, including limits of 60% for equities, 25% for bonds and credit instruments, and 40% for single assets, with quarterly rebalancing applied. The goal is to design a balanced, diversified portfolio while exploring various analytical perspectives and methodologies.
+
+```{r}
+MAA <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question6/data/MAA.rds")
+msci <- read_rds("/Users/x/Downloads/28736907_Fin_Metrics/Questions/Question6/data/msci.rds") %>%
+filter(Name %in% c("MSCI_ACWI", "MSCI_USA", "MSCI_RE", "MSCI_Jap"))
+```
+
+To prepare the data, the function process_data is applied. The function processes and merges msci and MAA datasets, aligning them to end-of-month dates. It categorizes MAA data by asset type based on tickers, assigns "Equity" to msci data, combines both datasets, and filters out assets with less than 36 months of data. The result is a cleaned, classified, and aligned dataset for analysis.
+
+```{r}
+merged <- process_data("2011-01-01", "2023-01-01", msci, MAA)
+```
+
+Subsequently the log returns are calculated by the calculate_returns function.
+
+```{r}
+returns_data <- calculate_returns(merged)
+```
+
+And the rebalance days are determined by the reb_days function.
+
+```{r}
+Rebalance_Days <- reb_days(returns_data)
+
+```
+
+Now the reb_data function is applied, which processes returns_data to calculate portfolio weights on specified rebalance days. It filters data for dates in Rebalance_Days, groups it by rebalance periods (RebalanceTime), sorts assets by descending price, calculates weights as a proportion of total price for each period, and organizes the results chronologically. The output is a dataset with calculated weights for each rebalance period.
+
+```{r}
+rebalance_col <- reb_data(returns_data, Rebalance_Days)
+```
+
+As the datasets are now prepared, it is possible to create the adjusted dataset with capped weights according to the speifications. This is done with the Cap_With_Groups function. It adjusts portfolio weights in a dataframe by applying caps based on asset type and ensures the weights remain properly normalized. It first verifies that the necessary columns (weight and Type) are present. Next, it assigns a cap (group_cap) to each asset based on its type: equities are capped by Equity_Cap, bonds by Bond_Cap, and other assets by W_Cap. It then checks if the total weight of any group exceeds its cap, and if so, proportionally scales down the weights in that group to meet the cap. Afterward, it ensures no individual weight exceeds W_Cap and normalizes all weights to sum to 1. Finally, it validates that the adjusted weights sum to 1 and returns the updated dataframe with capped and normalized weights.
+
+```{r}
+Capped_df <- rebalance_col %>%
+  group_split(RebalanceTime) %>%
+  map_df(~Cap_With_Groups(., W_Cap = 0.4, Equity_Cap = 0.6, Bond_Cap = 0.25)) %>%
+  select(-RebalanceTime)
+```
+
+To calculate the Return of the portfolio the weights and the returns have to be spread.
+
+```{r}
+wts <- Capped_df %>%
+  tbl_xts(cols_to_xts = weight, spread_by = Name)
+
+rts <- returns_data %>%
+  filter(Name %in% unique(Capped_df$Name)) %>%
+  tbl_xts(cols_to_xts = Return, spread_by = Name)
 
 
-Now add the relevant data for each question into the respective data/ folders in the different Question folders.
+wts[is.na(wts)] <- 0
+rts[is.na(rts)] <- 0
+```
 
-Check that your .gitignore file ignores all folders starting with data.
-
-
-> NB - this README (at the root of your folder) - is what I will be grading. 
-
-> Space out code per question in this README - detailing your steps and thinking.
-
-> Folders in Questions/... should not contain READMEs - I will only be looking at their output (pdf / html).
-
-> THIS README should contain and describe the code you used in your analyses.
+To plot the cumulative returns, the plot_safe_returns is applied. It calculates and visualizes the cumulative returns of a portfolio with quarterly rebalancing and capped weights. It takes return data (rts) and weight data (wts) as inputs. First, the function computes the portfolio returns using Safe_Return.portfolio from the rmsfuns package, with lagged weights to account for rebalancing. The resulting returns are renamed to capped_ret and converted into cumulative returns by compounding over time (cumprod). The cumulative returns are then plotted using ggplot2 as a time series, with a line representing the portfolio's growth over time.
 
 
-Good luck and enjoy the practical!
-
-Nico
 

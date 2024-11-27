@@ -1,4 +1,5 @@
 process_data <- function(start_date, end_date, msci, MAA) {
+    library(rmsfuns)
 
     dates5 <- dateconverter(as.Date(start_date), as.Date(end_date), "weekdayEOM") %>%
         data.frame() %>%

@@ -1,4 +1,5 @@
 reb_days <- function(returns_data) {
+    library(xts)
     Rebalance_Days <- returns_data %>%
         mutate(
             Year = format(date, "%Y"),
@@ -11,7 +12,7 @@ reb_days <- function(returns_data) {
         group_by(Month) %>%
         filter(Day == "Wed") %>%
         group_by(Year, Month) %>%
-        filter(date == first(date)) %>%
+        filter(date == dplyr::first(date)) %>%
         pull(date)
 
     return(Rebalance_Days)
